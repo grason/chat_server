@@ -1,0 +1,17 @@
+keywords
+
+/list - list all client names connected. Maybe add special types to get a list of users in that specific room? 
+
+/kick - kick the user out of the room. 
+
+/message_direct - directly message one user to another
+
+/message - message to everyone in the room 
+
+/message_all - message every client connected 
+
+/join - user joins a room if it already exists
+
+/create - user creates a room if it does not already exist 
+
+/send_cat - maybe sends that cowboy cat picture to a user. 
