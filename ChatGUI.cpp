@@ -4,7 +4,7 @@
  *  Created on: Sep 24, 2013
  *      Author: brennang
  */
-
+#include <QtGui>
 #include "ChatGUI.h"
 
 ChatGUI::ChatGUI() {

@@ -1,17 +1,24 @@
-/*
- * ChatGUI.h
- *
- *  Created on: Sep 24, 2013
- *      Author: brennang
- */
+#ifndef MYQTAPP_H
+#define MYQTAPP_H
 
-#ifndef CHATGUI_H_
-#define CHATGUI_H_
+#include "ui_chatGUI.h"
 
-class ChatGUI {
+
+class myQtApp : public QWidget, private Ui::myQtAppDLG
+{
+    Q_OBJECT
+
 public:
-	ChatGUI();
-	virtual ~ChatGUI();
+    myQtApp(QWidget *parent = 0);
+
+
+public slots:
+    void getPath();
+    void doSomething();
+    void clear();
+    void about();
+
 };
 
-#endif /* CHATGUI_H_ */
+
+#endif
