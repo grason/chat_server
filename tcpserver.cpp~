@@ -107,7 +107,7 @@ void* chat_with_client(void* arg)
 	send(c->socket, line, strlen(line), 0);
 	
 	n = recv(c->socket, line, SIZE, 0);
-	line[n] = '\0';
+	//line[n] = '\0';
 
 	strcpy(c->username, line);
 	printf("New username, %s, has joined the chat!\n", c->username);
