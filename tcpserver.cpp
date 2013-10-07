@@ -9,7 +9,7 @@
 
 #define USERNAME_BOUND 20
 #define GROUPNAME_BOUND 20
-#define LIMIT 500
+#define LIMIT 5000
 
 using namespace std;
 
@@ -18,7 +18,7 @@ struct client
 	char username[USERNAME_BOUND];
 	int admin;
 	int socket;
-	vector<char*> groups;
+    vector<char*> groups;
 };
 
 struct group
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 	struct sockaddr_in serveraddr, clientaddr;
 	  
 	serveraddr.sin_family=AF_INET;
-	serveraddr.sin_port=htons(9874);
+	serveraddr.sin_port=htons(9876);
 	serveraddr.sin_addr.s_addr=htonl(INADDR_ANY);
 
 	bind(sockfd,(struct sockaddr*)&serveraddr,sizeof(serveraddr));
@@ -114,6 +114,33 @@ int main(int argc, char **argv)
 						}
 						
 						send(i,line,strlen(line),0);
+					}
+					else if(!strcmp(token, "/list_group"))
+					{
+						bzero(line, LIMIT);
+						strcpy(line, "Current group list:\n");
+						for(vector<group*>::iterator it = groups.begin(); it != groups.end(); it++)
+						{
+						    strcat(line,(*it)->group_name);
+						    strcat(line, "\n");
+						}
+						
+						send(i,line,strlen(line),0);
+					}
+					else if(!strcmp(token, "/make_admin"))
+					{
+					    bzero(line, LIMIT);
+                                               // Put the sender's username in the message
+						for(vector<client*>::iterator it = clients.begin(); it != clients.end(); ++it)
+						{
+							if(i == (*it)->socket)
+							{
+							    (*it)->admin = 1;
+							    strcpy(line, "You have been made an admin\n");
+							    send(i, line, strlen(line), 0);
+							    break;
+							}
+						}
 					}
 					else if(!strcmp(token, "/message_all"))
 					{
@@ -223,7 +250,7 @@ int main(int argc, char **argv)
 							}
 						}
 					}
-					else if(!strcmp(line, "/create"))
+					else if(!strcmp(token, "/create"))
 					{
 						int create_group = 1;
 						
@@ -236,7 +263,7 @@ int main(int argc, char **argv)
 							// For all of the groups, check if the group already exists
 							for(vector<group*>::iterator it = groups.begin(); it != groups.end(); ++it)
 							{
-								if(!strcmp((*it)->groupname, token))
+								if(!strcmp((*it)->group_name, token))
 								{
 									// Send message to client and send create_group to false
 									strcpy(line, "Group already exists.");
@@ -265,7 +292,7 @@ int main(int argc, char **argv)
 								if(is_admin)
 								{
 									group* g = new group();
-									strcpy(g->groupname, token);
+									strcpy(g->group_name, token);
 									groups.push_back(g);
 									
 									// Send confirmation message
@@ -287,7 +314,7 @@ int main(int argc, char **argv)
 							send(i, line, strlen(line), 0);
 						}
 					}
-					else if(!strcmp(line, "/join"))
+					else if(!strcmp(token, "/join"))
 					{
 						token = strtok(NULL, " ");
 						bzero(line, LIMIT);
@@ -295,20 +322,20 @@ int main(int argc, char **argv)
 						// If a group name was provided...
 						if(token != NULL)
 						{
+						    int is_group = 0;
 							// For each of our clients...
 							for(vector<client*>::iterator it = clients.begin(); it != clients.end(); ++it)
 							{
 								// If this is the user...
 								if(i == (*it)->socket)
 								{
-									int is_group = 0;
 									// Find the group that the user wants to join...
 									for(vector<group*>::iterator gr = groups.begin(); gr != groups.end(); ++gr)
 									{
-										if(!strcmp((*gr)->groupname, token))
+										if(!strcmp((*gr)->group_name, token))
 										{
 											// Save the groupname in the client and push the client into the group
-											((*it)->groups).push_back(token);
+										    	((*it)->groups).push_back(token);
 											((*gr)->members).push_back(*it);
 											is_group = 1;
 											break;
@@ -327,15 +354,12 @@ int main(int argc, char **argv)
 								strcat(line, "\"\n");
 							}
 							else
-							{
 								strcpy(line, "Group could not be found.\n");
-							}
 						}
 						else
-						{
 							strcpy(line, "Group name is missing.\n");
-							send(i, line, strlen(line), 0);
-						}
+
+						send(i, line, strlen(line), 0);
 					}
 				}	
 			}	
